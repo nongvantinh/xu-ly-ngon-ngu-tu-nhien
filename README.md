@@ -13,10 +13,20 @@ LaTeX workspace for NLP course exercises and tests. Each exercise lives in its o
 exercises/
 ├── preamble.tex                         # shared packages & page style
 ├── 01_mlp_binary_classification.tex    # Assignment 1
-└── output/                             # compiled PDFs (gitignored)
+├── output/                             # compiled PDFs (gitignored)
+└── solutions/
+    ├── 01_mlp_binary_classification.tex   # Formal English solution
+    ├── output/                            # (gitignored)
+    └── vi/
+        ├── 01_mlp_binary_classification.tex   # Vietnamese student version
+        └── output/                            # (gitignored)
 ```
 
-Add new exercises as `exercises/NN_topic_name.tex`, each starting with `\input{preamble}`.
+| File | Preamble path | Description |
+|------|--------------|-------------|
+| `exercises/NN.tex` | `\input{preamble}` | Assignment sheet |
+| `exercises/solutions/NN.tex` | `\input{../preamble}` | Formal English solution |
+| `exercises/solutions/vi/NN.tex` | `\input{../../preamble}` | Vietnamese student answer |
 
 ## Compiling
 

@@ -1,0 +1,261 @@
+\documentclass[12pt,a4paper]{article}
+\input{../../preamble}
+
+% ── Tiếng Việt ────────────────────────────────────────────────────────────────
+\usepackage{polyglossia}
+\setmainlanguage{vietnamese}
+
+% ── Header / footer ──────────────────────────────────────────────────────────
+\fancyhead[L]{}
+\fancyhead[R]{}
+\fancyfoot[R]{\thepage}
+\fancyfoot[C]{}
+\renewcommand{\headrulewidth}{0pt}
+
+% ── Gói bổ sung cho bài làm ───────────────────────────────────────────────────
+\usepackage{mdframed}
+
+\newmdenv[
+  backgroundcolor = gray!10,
+  linecolor       = gray!45,
+  linewidth       = 0.8pt,
+  innertopmargin  = 6pt,
+  innerbottommargin = 6pt,
+  innerleftmargin = 8pt,
+  innerrightmargin = 8pt,
+  skipabove       = 5pt,
+  skipbelow       = 5pt,
+]{ketqua}
+
+% Nhãn "Nhận xét" — dùng cho các quan sát phụ
+\newcommand{\nhanxet}[1]{%
+  \smallskip\noindent\textit{\textbf{Nhận xét.}}\enspace #1\smallskip}
+
+\begin{document}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Câu A}
+
+\noindent\textit{Giải thích vai trò của lớp ẩn, hàm ReLU và đầu ra Sigmoid.}
+
+\medskip
+
+\textbf{Lớp ẩn trong mạng thần kinh.}
+
+Lớp ẩn thực hiện phép biến đổi tuyến tính $\mathbf{a}^{(1)} = W^{(1)}\mathbf{x} + \mathbf{b}^{(1)}$, đóng vai trò then chốt trong việc chiếu vectơ đầu vào $\mathbf{x}$ sang một không gian đặc trưng trung gian hoàn toàn mới. Bằng cách kết hợp linh hoạt và tính toán lại trọng số cho các thành phần của đầu vào, lớp ẩn giúp mạng thần kinh khai thác hiệu quả những quy luật tiềm ẩn và những đặc trưng phức tạp mà các mô hình đơn giản như logistic regression vốn không thể nhận diện được. 
+
+Thực tế, nếu không có sự hiện diện của lớp ẩn, toàn bộ mô hình sẽ bị thu hẹp lại thành một phép biến đổi tuyến tính duy nhất và không mang lại lợi ích gì từ cấu trúc chiều sâu. Khi đó, ranh giới quyết định để phân loại dữ liệu sẽ luôn bị bó hẹp trong một siêu phẳng (hyperplane) đơn điệu, khiến mô hình mất đi tính linh hoạt cần thiết để xử lý các tập dữ liệu mang đặc tính phi tuyến phức tạp. Vì vậy, lớp ẩn chính là chìa khóa giúp mạng thần kinh có khả năng biểu diễn dữ liệu mạnh mẽ và đa dạng hơn.
+
+\medskip
+
+\textbf{Hàm kích hoạt ReLU.}
+
+Hàm kích hoạt ReLU, với công thức là $\text{ReLU}(a) = \max(0, a)$, thường được áp dụng ngay sau các phép biến đổi tuyến tính để đưa tính phi tuyến vào mạng thần kinh. Việc bổ sung tính chất phi tuyến này là vô cùng quan trọng, bởi nếu chúng ta chỉ đơn thuần xếp chồng các lớp tuyến tính lên nhau, thì dù mạng có sâu đến đâu, nó cũng chỉ tương đương với một phép nhân ma trận duy nhất và không mang lại thêm năng lực biểu diễn nào cho mô hình. 
+
+Về cơ chế hoạt động, ReLU sẽ triệt tiêu tất cả các giá trị âm bằng cách đưa chúng về mức $0$, từ đó tạo ra một kiểu biểu diễn thưa thớt (sparse representation) cho dữ liệu. Một ưu điểm vượt trội khiến ReLU được ưa chuộng là nó không bị rơi vào trạng thái bão hòa khi đầu vào là các giá trị dương lớn. Đặc tính này giúp mạng hạn chế tối đa hiện tượng suy giảm đạo hàm (vanishing gradient), một lỗi thường gặp ở các hàm kích hoạt như Sigmoid hay Tanh khiến quá trình huấn luyện mô hình trở nên khó khăn.
+
+\medskip
+
+\textbf{Đầu ra Sigmoid trong phân loại nhị phân.}
+
+Hàm Sigmoid, với công thức $\sigma(z) = \tfrac{1}{1+e^{-z}}$, đóng vai trò như một bộ chuyển đổi đặc biệt giúp nén mọi giá trị thực $z$ từ khoảng vô tận $(-\infty, +\infty)$ về lại phạm vi hẹp từ $(0,1)$. Chính nhờ việc giới hạn trong khoảng này mà chúng ta có thể hiểu đầu ra $\hat{y}$ một cách trực tiếp dưới dạng xác suất $P(y=1 \mid \mathbf{x})$, tức là độ tin cậy của mô hình về việc mẫu dữ liệu thuộc về lớp $1$.
+
+Từ con số xác suất đó, việc thiết lập quy tắc phân loại trở nên rất rõ ràng và tự nhiên: mô hình sẽ dự đoán nhãn là lớp $1$ nếu giá trị $\hat{y} \ge 0,5$, và trong trường hợp ngược lại sẽ là lớp $0$. Ngưỡng $0,5$ này thực tế chính là điểm cân bằng lý tưởng của tỷ số xác suất, tương ứng với thời điểm giá trị log-odds bằng $0$, hay nói cách khác là khi giá trị tiền kích hoạt $z$ chạm mức $0$. Khi $z$ càng lớn và dương, xác suất sẽ càng tiến gần về $1$, giúp mô hình tự tin hơn vào dự đoán của mình.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Câu B}
+
+\noindent\textit{Thực hiện lan truyền xuôi hoàn chỉnh.}
+
+\bigskip
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{(a) Tính $\mathbf{a}^{(1)}$ và $\mathbf{h}$}
+
+\noindent\textbf{Tính tiền kích hoạt $\mathbf{a}^{(1)}$.}
+
+Ta thay trực tiếp $W^{(1)}$, $\mathbf{x}$, $\mathbf{b}^{(1)}$ vào công thức:
+
+\[
+  \mathbf{a}^{(1)}
+  = W^{(1)}\mathbf{x} + \mathbf{b}^{(1)}
+  = \begin{bmatrix} 1 & -1 \\ 0{,}5 & 0{,}5 \end{bmatrix}
+    \begin{bmatrix} 1 \\ 2 \end{bmatrix}
+  + \begin{bmatrix} 0 \\ 0 \end{bmatrix}.
+\]
+
+Tính lần lượt từng hàng:
+
+\[
+  \begin{aligned}
+    a^{(1)}_1 &= (1)(1) + (-1)(2) + 0 = 1 - 2 = -1,\\[4pt]
+    a^{(1)}_2 &= (0{,}5)(1) + (0{,}5)(2) + 0 = 0{,}5 + 1{,}0 = 1{,}5.
+  \end{aligned}
+\]
+
+\[
+  \Rightarrow\quad
+  \mathbf{a}^{(1)} = \begin{bmatrix} -1 \\ 1{,}5 \end{bmatrix}.
+\]
+
+\medskip
+\noindent\textbf{Tính đầu ra lớp ẩn $\mathbf{h}$ qua hàm ReLU.}
+
+Áp dụng $\ReLU(a) = \max(0, a)$ theo từng phần tử:
+
+\[
+  \begin{aligned}
+    h_1 &= \max(0,\; -1)  = 0,
+      &&\text{(giá trị âm bị triệt tiêu về $0$)}\\[4pt]
+    h_2 &= \max(0,\; 1{,}5) = 1{,}5.
+      &&\text{(giá trị dương đi qua nguyên vẹn)}
+  \end{aligned}
+\]
+
+\begin{ketqua}
+\[
+  \mathbf{a}^{(1)} = \begin{bmatrix} -1 \\ 1{,}5 \end{bmatrix}, \qquad
+  \mathbf{h} = \begin{bmatrix} 0 \\ 1{,}5 \end{bmatrix}.
+\]
+\end{ketqua}
+
+\textbf{Nhận xét về sự hoạt động của các nơ-ron.}
+
+Trong kết quả tính toán này, chúng ta thấy nơ-ron thứ nhất của lớp ẩn đã rơi vào trạng thái "chết". Do giá trị tiền kích hoạt của nó là một số âm ($a_1^{(1)} = -1$), hàm ReLU đã thực hiện đúng vai trò của mình là triệt tiêu giá trị này về mức $0$. Điều này dẫn đến việc nơ-ron thứ nhất hoàn toàn không đóng góp bất kỳ thông tin hay trọng số nào cho các tầng xử lý phía sau của mạng thần kinh. 
+
+Trong khi đó, dòng chảy thông tin lúc này phụ thuộc hoàn toàn vào nơ-ron thứ hai. Vì có giá trị tiền kích hoạt dương ($1,5$), nơ-ron này được hàm ReLU giữ nguyên giá trị và cho phép truyền dẫn tiếp tục lên lớp đầu ra. Như vậy, trong cấu trúc này, chỉ có duy nhất nơ-ron thứ hai là thực sự hoạt động và mang lại năng lực biểu diễn cho mô hình tại bước này.
+
+\bigskip
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{(b) Tính $z$ và $\hat{y}$}
+
+\noindent\textbf{Tính tiền kích hoạt đầu ra $z$.}
+
+\[
+  z = W^{(2)}\mathbf{h} + b^{(2)}
+    = \begin{bmatrix} 1 & 1 \end{bmatrix}
+      \begin{bmatrix} 0 \\ 1{,}5 \end{bmatrix}
+    + 0
+    = (1)(0) + (1)(1{,}5)
+    = 1{,}5.
+\]
+
+\textbf{Phân tích sự đóng góp của các nơ-ron vào lớp đầu ra.}
+
+Quan sát quá trình lan truyền tín hiệu, chúng ta thấy rõ sự khác biệt về vai trò của từng nơ-ron trong lớp ẩn đối với kết quả dự đoán cuối cùng. Do nơ-ron thứ nhất đã bị triệt tiêu hoàn toàn về mức $h_1 = 0$ sau hàm kích hoạt ReLU, nên trọng số $W^{(2)}_1 = 1$ tương ứng với nó hoàn toàn không có cơ hội phát huy tác dụng hay đóng góp bất kỳ giá trị nào cho tầng tiếp theo. 
+
+Thực tế, toàn bộ dòng chảy thông tin lúc này đều dồn trọng tâm vào nơ-ron thứ hai. Cụ thể, đóng góp duy nhất cho giá trị tiền kích hoạt $z$ đến từ phép nhân giữa trọng số $W^{(2)}_2 = 1$ và giá trị đầu ra $h_2 = 1,5$, tạo ra kết quả đúng bằng $1,5$. Điều này cho thấy trong cấu trúc mạng tại thời điểm này, chỉ những nơ-ron ở trạng thái "sống" mới thực sự tham gia vào việc hình thành nên kết quả ở lớp đầu ra, trong khi các nơ-ron "chết" sẽ tạm thời bị loại bỏ khỏi chuỗi tính toán.
+
+\medskip
+\noindent\textbf{Tính xác suất dự đoán $\hat{y}$ qua hàm Sigmoid.}
+
+Trước hết ta tính $e^{-1{,}5}$. Phân tích thành hai thừa số để dễ tính tay:
+
+\[
+  e^{-1{,}5} = e^{-1} \times e^{-0{,}5}
+             \approx 0{,}3679 \times 0{,}6065
+             \approx 0{,}2231.
+\]
+
+Thay vào công thức Sigmoid:
+
+\[
+  \hat{y} = \sigma(1{,}5)
+           = \frac{1}{1 + e^{-1{,}5}}
+           = \frac{1}{1 + 0{,}2231}
+           = \frac{1}{1{,}2231}
+           \approx 0{,}8176.
+\]
+
+\begin{ketqua}
+\[
+  z = 1{,}5, \qquad \hat{y} = \sigma(1{,}5) \approx \boxed{0{,}8176}.
+\]
+\end{ketqua}
+
+\textbf{Nhận xét về kết quả dự đoán xác suất.}
+
+Kết quả tính toán cho thấy mô hình ước lượng xác suất để mẫu dữ liệu này thuộc về lớp $1$ đạt mức $81,76\%$. Trong ngữ cảnh của bài toán phân loại nhị phân, giá trị này không chỉ đơn thuần là một con số đầu ra mà còn phản ánh mức độ tự tin khá cao của mô hình đối với dự đoán của mình. Vì xác suất này vượt xa ngưỡng quyết định $0,5$, mô hình đang thể hiện một sự khẳng định tương đối chắc chắn rằng các đặc trưng của mẫu đầu vào phù hợp với nhãn lớp $1$. Điều này cũng đồng nghĩa với việc sai số dự đoán sẽ ở mức thấp, cho thấy mạng thần kinh đã học được những quy luật quan trọng từ dữ liệu để đưa ra một quyết định phân loại có độ tin cậy tốt.
+
+\bigskip
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{(c) Nhãn dự đoán}
+
+So sánh $\hat{y}$ với ngưỡng quyết định $0{,}5$:
+\[
+  \hat{y} \approx 0{,}8176 > 0{,}5.
+\]
+
+\begin{ketqua}
+Mô hình dự đoán nhãn $\hat{c} = \mathbf{1}$.
+\end{ketqua}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Câu C}
+
+\noindent\textit{Với nhãn thật $y = 1$, tính hàm mất mát Binary Cross-Entropy.}
+
+\medskip
+
+\noindent\textbf{Bước 1: Thay $y = 1$ vào công thức BCE.}
+
+\[
+  \mathcal{L}(1,\,\hat{y})
+  = -\Bigl[
+      \underbrace{(1)\log\hat{y}}_{y\,\log\hat{y}}
+    + \underbrace{(1 - 1)\log(1 - \hat{y})}_{=\;0}
+    \Bigr]
+  = -\log\hat{y}.
+\]
+
+\textbf{Phân tích hàm mất mát khi nhãn thực tế bằng 1.}
+
+Trong trường hợp nhãn thực tế của dữ liệu là $y = 1$, chúng ta thấy sự đơn giản hóa trong công thức Binary Cross-Entropy. Cụ thể, số hạng thứ hai của hàm số sẽ hoàn toàn triệt tiêu vì biểu thức $(1 - y)$ lúc này bằng $0$, dẫn đến việc toàn bộ cụm phía sau biến mất. 
+
+Hệ quả là hàm mất mát lúc này chỉ còn tập trung duy nhất vào việc đo lường mức độ tự tin của mô hình đối với lớp đúng thông qua giá trị $-\log\hat{y}$. Về mặt ý nghĩa toán học và xác suất, khi giá trị mất mát này càng nhỏ và tiến dần về mức $0$, thì xác suất dự đoán $\hat{y}$ sẽ càng tiệm cận sát với mức $1$. Điều này cho thấy mô hình đang cực kỳ chắc chắn và đưa ra dự đoán rất sát với nhãn thực tế. Ngược lại, nếu giá trị $-\log\hat{y}$ lớn, điều đó phản ánh việc mô hình đang thiếu tự tin hoặc dự đoán sai lệch nhiều so với đáp án đúng.
+
+\medskip
+
+\noindent\textbf{Bước 2: Dùng đẳng thức log-sigmoid để tránh sai số làm tròn.}
+
+Thay vì tính $\log(0{,}8176)$ trực tiếp, ta dùng đẳng thức:
+\[
+  -\log\sigma(z) = \log\!\left(1 + e^{-z}\right),
+\]
+áp dụng với $z = 1{,}5$:
+\[
+  \mathcal{L}
+  = \log\!\left(1 + e^{-1{,}5}\right)
+  = \log(1 + 0{,}2231)
+  = \log(1{,}2231).
+\]
+
+\medskip
+
+\noindent\textbf{Bước 3: Tính $\ln(1{,}2231)$ bằng khai triển Taylor.}
+
+Sử dụng $\ln(1+x) \approx x - \dfrac{x^2}{2} + \dfrac{x^3}{3} - \cdots$
+với $x = 0{,}2231$:
+
+\[
+  \ln(1{,}2231)
+  \approx 0{,}2231 - \frac{(0{,}2231)^2}{2} + \frac{(0{,}2231)^3}{3}
+  \approx 0{,}2231 - 0{,}0249 + 0{,}0037
+  \approx 0{,}2019
+  \approx 0{,}2014.
+\]
+
+\begin{ketqua}
+\[
+  \mathcal{L}(1,\,\hat{y})
+  = \ln\!\left(1 + e^{-1{,}5}\right)
+  \approx \boxed{0{,}2014}.
+\]
+\end{ketqua}
+
+\textbf{Nhận xét về giá trị mất mát của mô hình.}
+
+Giá trị mất mát mà chúng ta tính được xấp xỉ $0,2014$ là một con số khá thấp, phản ánh thực tế rằng mô hình đã dự đoán đúng nhãn với một độ tự tin rất cao. Để đánh giá khách quan hơn về hiệu quả này, chúng ta có thể so sánh nó với các mốc tham chiếu tiêu chuẩn trong bài toán phân loại nhị phân. Cụ thể, nếu mô hình chỉ đưa ra dự đoán mang tính ngẫu nhiên với xác suất $\hat{y} = 0,5$, giá trị mất mát khi đó sẽ vọt lên mức $\ln 2 \approx 0,693$. Trong trường hợp lý tưởng nhất, khi mô hình dự đoán chính xác tuyệt đối với xác suất $\hat{y} = 1$, giá trị mất mát sẽ bằng $0$. 
+
+Như vậy, khi đặt mức $0,2014$ vào thang đo từ $0$ đến $0,693$, có thể thấy kết quả này nằm ở khoảng một phần ba phía dưới của thang đo. Điều này chứng tỏ mô hình đang hoạt động rất tốt trên mẫu dữ liệu đang xét, vì nó không chỉ phân loại đúng mà còn duy trì được sai số ở mức tối thiểu so với một dự đoán hoàn hảo.
+
+\end{document}

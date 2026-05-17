@@ -14,9 +14,8 @@
 *.xdv
 *.pdf
 
-# latexmk / VS Code output directories
+# latexmk / VS Code output directories (matches output/ at any depth)
 %OUTDIR%
-exercises/output/
 output/
 
 # Backup / error saves

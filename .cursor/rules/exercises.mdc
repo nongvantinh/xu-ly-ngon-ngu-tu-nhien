@@ -1,0 +1,7 @@
+---
+description: NLP course exercise and solution workflow
+globs: exercises/**/*.tex
+alwaysApply: true
+---
+
+@../../CONVENTIONS.md

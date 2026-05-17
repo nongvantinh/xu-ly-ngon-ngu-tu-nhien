@@ -1,0 +1,263 @@
+\documentclass[12pt,a4paper]{article}
+\input{../preamble}
+
+% ── Solution-specific helpers ─────────────────────────────────────────────────
+\usepackage{mdframed}
+
+% Light-gray box for final answers
+\newmdenv[
+  backgroundcolor = gray!12,
+  linecolor       = gray!50,
+  linewidth       = 0.8pt,
+  innertopmargin  = 6pt,
+  innerbottommargin = 6pt,
+  innerleftmargin = 8pt,
+  innerrightmargin = 8pt,
+  skipabove       = 6pt,
+  skipbelow       = 6pt,
+]{answerbox}
+
+% Step label: bold sans-serif marker
+\newcommand{\step}[1]{\medskip\noindent\textbf{\textsf{Step #1.}}\enspace}
+
+\begin{document}
+
+% ── Title block ───────────────────────────────────────────────────────────────
+\begin{center}
+  {\Large\bfseries Natural Language Processing}\\[0.4em]
+  {\large\bfseries Assignment 1 --- SOLUTION}\\[0.2em]
+  {\large MLP for Binary Classification}\\[0.2em]
+  {\normalsize Total: 10 points}
+\end{center}
+
+\noindent\rule{\linewidth}{0.6pt}
+\vspace{0.5em}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Question A \hfill{\normalfont\small(2 points)}}
+
+\noindent\textit{Explain the role of the hidden layer, the ReLU activation,
+and the Sigmoid output.}
+
+\medskip
+
+\textbf{Hidden layer.}
+The hidden layer applies an affine (linear) transformation
+\[
+  \mathbf{a}^{(1)} = W^{(1)}\mathbf{x} + \mathbf{b}^{(1)},
+\]
+projecting the 2-dimensional input $\mathbf{x}$ into a new representation
+space.
+This transformation re-weights and mixes the input features, giving the
+network the ability to detect patterns that are not directly visible in the
+raw inputs.
+Without a hidden layer the model degenerates to logistic regression, which can
+only learn a \emph{linear} decision boundary.
+
+\medskip
+
+\textbf{ReLU activation.}
+The Rectified Linear Unit (ReLU) is defined element-wise as
+\[
+  \ReLU(a) = \max(0,\, a).
+\]
+Its purpose is to introduce \emph{non-linearity}: without a non-linear
+activation, a stack of linear layers collapses to a single linear
+transformation, giving no benefit from depth.
+ReLU specifically zeroes out any negative pre-activation, producing sparse
+hidden representations.
+Compared with sigmoid or tanh, ReLU does not saturate for large positive
+inputs, which reduces the \emph{vanishing-gradient} problem during
+backpropagation.
+
+\medskip
+
+\textbf{Sigmoid output.}
+The sigmoid function
+\[
+  \sigma(z) = \frac{1}{1+e^{-z}}
+\]
+maps the unbounded scalar $z \in (-\infty,+\infty)$ to the open interval
+$(0,1)$, making the output directly interpretable as the probability
+$\hat{y} = P(y = 1 \mid \mathbf{x})$.
+The standard decision rule is: predict class $1$ if $\hat{y} \ge 0.5$
+(equivalently, $z \ge 0$), and class $0$ otherwise.
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Question B \hfill{\normalfont\small(6 points)}}
+
+\noindent\textit{Perform the complete forward propagation.}
+
+\bigskip
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{(a) Compute $\mathbf{a}^{(1)}$ and $\mathbf{h}$
+             \hfill{\normalfont\small(2 points)}}
+
+\step{1} Apply the hidden-layer affine transformation.
+
+\[
+  \mathbf{a}^{(1)}
+  = W^{(1)}\mathbf{x} + \mathbf{b}^{(1)}
+  = \begin{bmatrix} 1 & -1 \\ 0.5 & 0.5 \end{bmatrix}
+    \begin{bmatrix} 1 \\ 2 \end{bmatrix}
+  + \begin{bmatrix} 0 \\ 0 \end{bmatrix}.
+\]
+
+Carry out the matrix--vector product row by row:
+
+\[
+  \begin{aligned}
+    a^{(1)}_1 &= (1)(1) + (-1)(2) + 0 = 1 - 2 = -1,\\[4pt]
+    a^{(1)}_2 &= (0.5)(1) + (0.5)(2) + 0 = 0.5 + 1.0 = 1.5.
+  \end{aligned}
+\]
+
+\[
+  \therefore\quad
+  \mathbf{a}^{(1)} = \begin{bmatrix} -1 \\ 1.5 \end{bmatrix}.
+\]
+
+\step{2} Apply the ReLU activation element-wise
+         $\bigl(\ReLU(a) = \max(0,a)\bigr)$.
+
+\[
+  \begin{aligned}
+    h_1 &= \max(0,\,-1) = 0,       & &\text{(negative value is suppressed)}\\
+    h_2 &= \max(0,\;1.5) = 1.5.   & &\text{(positive value passes through)}
+  \end{aligned}
+\]
+
+\begin{answerbox}
+\[
+  \mathbf{a}^{(1)} = \begin{bmatrix} -1 \\ 1.5 \end{bmatrix}, \qquad
+  \mathbf{h} = \ReLU\!\left(\mathbf{a}^{(1)}\right) = \begin{bmatrix} 0 \\ 1.5 \end{bmatrix}.
+\]
+\end{answerbox}
+
+\noindent\textit{Observation:} Neuron 1 of the hidden layer is
+\emph{inactive} (output $= 0$) because its pre-activation is negative.
+Only neuron 2 carries information forward.
+
+\bigskip
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{(b) Compute $z$ and $\hat{y}$
+             \hfill{\normalfont\small(3 points)}}
+
+\step{1} Apply the output-layer affine transformation.
+
+\[
+  z = W^{(2)}\mathbf{h} + b^{(2)}
+    = \begin{bmatrix} 1 & 1 \end{bmatrix}
+      \begin{bmatrix} 0 \\ 1.5 \end{bmatrix}
+    + 0
+    = (1)(0) + (1)(1.5)
+    = 1.5.
+\]
+
+\step{2} Compute $e^{-1.5}$ numerically.
+
+Using $e^{-1.5} = e^{-1} \times e^{-0.5}$:
+\[
+  e^{-1} \approx 0.3679, \qquad
+  e^{-0.5} \approx 0.6065, \qquad
+  e^{-1.5} \approx 0.3679 \times 0.6065 \approx 0.2231.
+\]
+
+\step{3} Apply the sigmoid function.
+
+\[
+  \hat{y} = \sigma(1.5)
+           = \frac{1}{1 + e^{-1.5}}
+           = \frac{1}{1 + 0.2231}
+           = \frac{1}{1.2231}
+           \approx 0.8176.
+\]
+
+\begin{answerbox}
+\[
+  z = 1.5, \qquad \hat{y} = \sigma(1.5) \approx \boxed{0.8176}.
+\]
+\end{answerbox}
+
+\noindent\textit{Interpretation:} The model estimates an $81.76\%$ probability
+that the sample belongs to class $1$.
+
+\bigskip
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{(c) Predicted class \hfill{\normalfont\small(1 point)}}
+
+Comparing $\hat{y}$ with the decision threshold $0.5$:
+\[
+  \hat{y} \approx 0.8176 > 0.5.
+\]
+
+\begin{answerbox}
+The model predicts class $\hat{c} = \mathbf{1}$.
+\end{answerbox}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{Question C \hfill{\normalfont\small(2 points)}}
+
+\noindent\textit{Given $y = 1$, compute the Binary Cross-Entropy loss.}
+
+\medskip
+
+\step{1} Substitute $y = 1$ into the BCE formula.
+
+\[
+  \mathcal{L}(1,\,\hat{y})
+  = -\bigl[\underbrace{(1)\log\hat{y}}_{y\,\log\hat{y}}
+          + \underbrace{(1-1)\log(1-\hat{y})}_{=\;0}\bigr]
+  = -\log\hat{y}.
+\]
+
+When the true label is 1, the loss reduces to the negative log of the
+predicted probability.  The $(1-y)\log(1-\hat{y})$ term vanishes because
+$1 - y = 0$.
+
+\step{2} Substitute $\hat{y} = \sigma(z)$ and simplify using the
+         log-sigmoid identity.
+
+A useful identity avoids rounding errors from computing $\log \hat{y}$
+indirectly:
+\[
+  -\log\sigma(z) = \log\!\left(1 + e^{-z}\right).
+\]
+
+Applying this with $z = 1.5$:
+\[
+  \mathcal{L}
+  = \log\!\left(1 + e^{-1.5}\right)
+  = \log(1 + 0.2231)
+  = \log(1.2231).
+\]
+
+\step{3} Evaluate $\ln(1.2231)$ numerically.
+
+\[
+  \ln(1.2231)
+  = \ln\!\left(\frac{1}{0.8176}\right)
+  = -\ln(0.8176).
+\]
+
+Using the series expansion $\ln(1+x) \approx x - \tfrac{x^2}{2} +
+\tfrac{x^3}{3} - \cdots$ with $x = 0.2231$:
+\[
+  \ln(1.2231) \approx 0.2231 - \frac{0.2231^2}{2} + \frac{0.2231^3}{3}
+             \approx 0.2231 - 0.0249 + 0.0037
+             \approx 0.2014 - 0.0001
+             \approx 0.2014.
+\]
+
+\begin{answerbox}
+\[
+  \mathcal{L}(1,\,\hat{y}) = \ln(1 + e^{-1.5}) \approx \boxed{0.2014}.
+\]
+\end{answerbox}
+
+\noindent\textit{Interpretation:} The loss is close to zero, reflecting that
+the model assigns a high probability (${\approx}81.76\%$) to the correct class.
+A perfect prediction ($\hat{y} = 1$) would give $\mathcal{L} = 0$; a random
+guess ($\hat{y} = 0.5$) would give $\mathcal{L} = \ln 2 \approx 0.693$.
+
+\end{document}
