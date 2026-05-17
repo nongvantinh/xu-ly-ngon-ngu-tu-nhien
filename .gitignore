@@ -1,0 +1,34 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.synctex.bak
+*.toc
+*.xdv
+*.pdf
+
+# latexmk / VS Code output directories
+%OUTDIR%
+exercises/output/
+output/
+
+# Backup / error saves
+*-SAVE-ERROR
+*~
+*.bak
+*.backup
+
+# Editor / IDE
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

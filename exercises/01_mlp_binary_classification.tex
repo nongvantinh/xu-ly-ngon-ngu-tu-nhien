@@ -1,0 +1,107 @@
+\documentclass[12pt,a4paper]{article}
+\input{preamble}
+
+\begin{document}
+
+% ── Title block ──────────────────────────────────────────────────────────────
+\begin{center}
+  {\Large\bfseries Natural Language Processing}\\[0.4em]
+  {\large\bfseries Assignment 1: MLP for Binary Classification}\\[0.3em]
+  {\normalsize Duration: 90 minutes}
+\end{center}
+
+\noindent\rule{\linewidth}{0.6pt}
+
+% ── Instructions ─────────────────────────────────────────────────────────────
+\vspace{0.3em}
+\textbf{Instructions:}
+\begin{itemize}[topsep=2pt, itemsep=2pt]
+  \item Answer all questions.
+  \item Show all intermediate steps for numerical calculations.
+  \item Calculators are allowed. No programming tools are permitted.
+\end{itemize}
+
+\noindent\rule{\linewidth}{0.6pt}
+\vspace{0.5em}
+
+% ── Problem Description ───────────────────────────────────────────────────────
+\section*{Problem Description}
+
+Consider a \textbf{binary classification} problem with labels:
+\[
+  y \in \{0, 1\}.
+\]
+
+You are given a single input sample:
+\[
+  \mathbf{x} = \begin{bmatrix} 1 \\ 2 \end{bmatrix} \in \mathbb{R}^2.
+\]
+
+The model is a \textbf{Multi-Layer Perceptron (MLP)} with:
+\begin{itemize}[topsep=2pt, itemsep=2pt]
+  \item One hidden layer (ReLU activation),
+  \item One output neuron (Sigmoid activation).
+\end{itemize}
+
+% ── Model Specification ───────────────────────────────────────────────────────
+\section*{Model Specification}
+
+\subsection*{Hidden Layer}
+
+\[
+  \mathbf{a}^{(1)} = W^{(1)}\mathbf{x} + \mathbf{b}^{(1)}, \qquad
+  \mathbf{h} = \ReLU\!\left(\mathbf{a}^{(1)}\right)
+\]
+
+where
+\[
+  W^{(1)} = \begin{bmatrix} 1 & -1 \\ 0.5 & 0.5 \end{bmatrix}, \qquad
+  \mathbf{b}^{(1)} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}.
+\]
+
+\subsection*{Output Layer}
+
+\[
+  z = W^{(2)}\mathbf{h} + b^{(2)}, \qquad
+  \hat{y} = \sigma(z), \qquad
+  \sigma(z) = \frac{1}{1 + e^{-z}}
+\]
+
+where
+\[
+  W^{(2)} = \begin{bmatrix} 1 & 1 \end{bmatrix}, \qquad b^{(2)} = 0.
+\]
+
+% ── Loss Function ─────────────────────────────────────────────────────────────
+\section*{Loss Function}
+
+Binary Cross-Entropy loss:
+\[
+  \mathcal{L}(y,\,\hat{y}) = -\left[y \log \hat{y} + (1 - y)\log(1 - \hat{y})\right].
+\]
+
+% ── Questions ─────────────────────────────────────────────────────────────────
+\section*{Questions}
+
+\noindent\textbf{Question A.} (2 points)\quad
+Explain the role of:
+\begin{itemize}[topsep=2pt, itemsep=2pt]
+  \item the hidden layer,
+  \item the ReLU activation,
+  \item the Sigmoid output.
+\end{itemize}
+
+\bigskip
+\noindent\textbf{Question B.} (6 points)\quad
+Perform the complete forward propagation:
+\begin{enumerate}[label=(\alph*), topsep=2pt, itemsep=4pt]
+  \item Compute $\mathbf{a}^{(1)}$ and $\mathbf{h}$.
+  \item Compute $z$ and $\hat{y}$.
+  \item Determine the predicted class using threshold $0.5$.
+\end{enumerate}
+
+\bigskip
+\noindent\textbf{Question C.} (2 points)\quad
+Given the true label $y = 1$, compute the Binary Cross-Entropy loss.
+
+\end{document}

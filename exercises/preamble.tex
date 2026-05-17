@@ -1,0 +1,32 @@
+% Shared preamble for NLP course exercises — input this from each exercise file.
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{bm}
+
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+
+% Page style
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small\textit{Natural Language Processing}}
+\rhead{\small Page \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Spacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+% Math operators
+\DeclareMathOperator{\ReLU}{ReLU}
